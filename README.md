@@ -1,5 +1,7 @@
 # Claude Teams UI
 
+> 🚧 **Work in progress** — things may break, move, or disappear. You’ve been warned 🙂
+
 A web dashboard for monitoring and managing [Claude Code](https://docs.anthropic.com/en/docs/claude-code) agent teams in real time.
 
 <img width="1080" height="1080" alt="screenshot-1080x1080" src="https://github.com/user-attachments/assets/a85fb8a7-48b4-4b6b-becf-b379c2b808a2" />
