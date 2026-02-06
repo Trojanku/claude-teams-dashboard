@@ -1,0 +1,25 @@
+node_modules/
+dist/
+dist-ssr/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+*.sw?
+.DS_Store
+
+# Environment
+*.local
+.env
+.env.*
+
+# Playwright
+e2e-tests/test-results/
+e2e-tests/playwright-report/
+
+# Claude Code local settings
+.claude/settings.local.json
