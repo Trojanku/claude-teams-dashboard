@@ -1,9 +1,11 @@
 import { useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Users, Loader2 } from 'lucide-react'
+import { Users, Loader2, Trash2 } from 'lucide-react'
 import { TeamCard, TeamDetailPanel } from '@/components/teams'
+import { Button } from '@/components/ui/button'
 import { useTeamStore } from '@/stores/teamStore'
 import { api } from '@/lib/api'
+import { STALE_THRESHOLD_MS } from '@/lib/utils'
 import type { Team } from '@/types'
 
 export function TeamsPage() {
@@ -42,6 +44,18 @@ export function TeamsPage() {
     cleanupMutation.mutate(team.id)
   }, [cleanupMutation])
 
+  const staleTeams = teams.filter((t) =>
+    t.lastActivityAt && Date.now() - new Date(t.lastActivityAt).getTime() > STALE_THRESHOLD_MS
+  )
+
+  const handleCleanupStale = useCallback(async () => {
+    for (const team of staleTeams) {
+      await api.deleteTeam(team.id)
+    }
+    queryClient.invalidateQueries({ queryKey: ['teams'] })
+    selectTeam(null)
+  }, [staleTeams, queryClient, selectTeam])
+
   const selectedTeam = teams.find((t) => t.id === selectedTeamId)
 
   return (
@@ -54,6 +68,17 @@ export function TeamsPage() {
               Manage your Claude Code agent teams
             </p>
           </div>
+          {staleTeams.length > 0 && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-warning hover:text-warning"
+              onClick={handleCleanupStale}
+            >
+              <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+              Clean up stale ({staleTeams.length})
+            </Button>
+          )}
         </div>
 
         <div className="flex-1 overflow-auto px-6 pb-6">

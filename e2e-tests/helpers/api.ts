@@ -33,16 +33,6 @@ export class ApiHelper {
     return res.json();
   }
 
-  async createTask(data: {
-    teamId: string;
-    subject: string;
-    description?: string;
-    owner?: string;
-  }) {
-    const res = await this.request.post(`${API_BASE}/tasks`, { data });
-    return res.json();
-  }
-
   async updateTask(taskId: string, teamId: string, updates: Record<string, unknown>) {
     const res = await this.request.patch(`${API_BASE}/tasks/${taskId}?teamId=${teamId}`, {
       data: updates,

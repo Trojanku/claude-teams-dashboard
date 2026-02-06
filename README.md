@@ -11,7 +11,7 @@ Claude Code's multi-agent team system coordinates AI agents working together on 
 - **Agent monitor** — List all agents across teams with status filtering
 - **Inter-agent messaging** — View message history between agents, send messages and broadcasts
 - **Real-time updates** — WebSocket-powered live refresh via file system watchers
-- **Tmux liveness detection** — Automatically detects dead agent processes and marks them inactive
+- **Stale team detection** — Flags teams with no file activity in 5+ minutes, with bulk cleanup
 - **Team cleanup** — Remove stale team and task data from the dashboard
 
 ## Tech Stack
@@ -84,7 +84,7 @@ claude-teams-ui/
 │       ├── api/routes/  # REST endpoints (teams, tasks, messages)
 │       ├── services/    # TeamService, TaskService, MessageService
 │       ├── types/       # Zod schemas + TypeScript types
-│       └── utils/       # Config, file watcher, tmux liveness
+│       └── utils/       # Config, file watcher
 ├── frontend/            # React + Vite SPA
 │   └── src/
 │       ├── components/  # UI components (teams, agents, tasks, messages)
@@ -100,11 +100,11 @@ claude-teams-ui/
 
 1. **File system as source of truth** — Claude Code stores team configs in `~/.claude/teams/{team-name}/config.json` and tasks in `~/.claude/tasks/{team-name}/`. The backend reads these directly.
 
-2. **Liveness detection** — Agents spawned by Claude Code run in tmux panes. The backend checks `tmux list-panes` to determine which agents are still alive. Dead agents are marked `inactive`.
+2. **Real-time sync** — chokidar watches the teams and tasks directories. File changes trigger Socket.io events that push updates to connected browsers.
 
-3. **Real-time sync** — chokidar watches the teams and tasks directories. File changes trigger Socket.io events that push updates to connected browsers.
+3. **WebSocket rooms** — Each team gets a Socket.io room. Clients only receive updates for teams they're viewing.
 
-4. **WebSocket rooms** — Each team gets a Socket.io room. Clients only receive updates for teams they're viewing.
+4. **Staleness detection** — Each team response includes `lastActivityAt`, computed from the most recent file modification time across config, task, and inbox files. Teams inactive for 5+ minutes are marked "Stale" in the UI.
 
 ## API Endpoints
 

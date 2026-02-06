@@ -13,7 +13,7 @@ import {
  * Full end-to-end workflow test.
  *
  * Scenario 13 from the test plan:
- *   Create team -> Create tasks -> Update task status ->
+ *   View teams -> View tasks -> Update task status ->
  *   View in agent monitor -> Send message -> Cleanup team
  */
 test.describe('Full Workflow', () => {
@@ -48,20 +48,7 @@ test.describe('Full Workflow', () => {
     await expect(page.locator('h3', { hasText: 'Completed' })).toBeVisible();
 
     // ================================================================
-    // Step 3: Create a task
-    // ================================================================
-    await page.getByRole('button', { name: /Create Task/i }).click();
-
-    const taskDialog = page.locator('[role="dialog"]');
-    await taskDialog.waitFor({ state: 'visible' });
-
-    await taskDialog.locator('#task-subject').fill('Workflow test task');
-    await taskDialog.locator('#task-desc').fill('Task for full workflow e2e test');
-    await taskDialog.getByRole('button', { name: /Create Task/i }).click();
-    await taskDialog.waitFor({ state: 'hidden', timeout: 10_000 });
-
-    // ================================================================
-    // Step 4: View task details and change status
+    // Step 3: View task details and change status
     // ================================================================
     // Click on a task to open its detail panel
     await page.locator('text=Implement JWT').click();

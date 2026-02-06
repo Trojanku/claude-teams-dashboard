@@ -1,9 +1,10 @@
-import { X, Bot, UserPlus, Trash2 } from 'lucide-react'
+import { X, Bot, UserPlus, Trash2, AlertTriangle } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import type { Team, AgentStatus } from '@/types'
+import { timeAgo, STALE_THRESHOLD_MS } from '@/lib/utils'
 
 interface TeamDetailPanelProps {
   team: Team;
@@ -51,6 +52,19 @@ export function TeamDetailPanel({ team, onClose, onSpawnAgent, onCleanup }: Team
             <h4 className="mb-1 text-xs font-medium text-muted-foreground uppercase tracking-wider">Created</h4>
             <p className="text-sm">{new Date(team.createdAt).toLocaleString()}</p>
           </div>
+
+          {team.lastActivityAt && (
+            <div>
+              <h4 className="mb-1 text-xs font-medium text-muted-foreground uppercase tracking-wider">Last Activity</h4>
+              <p className="text-sm">{new Date(team.lastActivityAt).toLocaleString()} ({timeAgo(team.lastActivityAt)})</p>
+              {Date.now() - new Date(team.lastActivityAt).getTime() > STALE_THRESHOLD_MS && (
+                <p className="mt-1 flex items-center gap-1 text-xs text-warning">
+                  <AlertTriangle className="h-3 w-3" />
+                  No file activity in over 5 minutes — this team session has likely ended
+                </p>
+              )}
+            </div>
+          )}
 
           <Separator />
 

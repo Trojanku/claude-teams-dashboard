@@ -27,7 +27,6 @@ export const api = {
   getTasks: () => request<unknown>('/tasks'),
   getTeamTasks: (teamId: string) => request<unknown>(`/teams/${teamId}/tasks`),
   getTask: (id: string) => request<unknown>(`/tasks/${id}`),
-  createTask: (data: unknown) => request<unknown>('/tasks', { method: 'POST', body: JSON.stringify(data) }),
   updateTask: (id: string, data: unknown, teamId?: string) => request<unknown>(`/tasks/${id}${teamId ? `?teamId=${teamId}` : ''}`, { method: 'PATCH', body: JSON.stringify(data) }),
 
   // Messages

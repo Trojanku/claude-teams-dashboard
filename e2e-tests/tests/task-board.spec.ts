@@ -55,29 +55,6 @@ test.describe('Task Board', () => {
     await expect(page.locator('text=Blocked').first()).toBeVisible({ timeout: 10_000 });
   });
 
-  // ── 6. Create a new task ────────────────────────────────────────────
-
-  test('should create a new task via the dialog', async ({ page }) => {
-    // Click "Create Task" button
-    await page.getByRole('button', { name: /Create Task/i }).click();
-
-    // CreateTaskDialog should appear
-    const dialog = page.locator('[role="dialog"]');
-    await dialog.waitFor({ state: 'visible' });
-
-    // Fill in subject (label: "Subject", placeholder: "Task title")
-    await dialog.locator('#task-subject').fill('E2E Test Task');
-
-    // Fill in description
-    await dialog.locator('#task-desc').fill('Created by e2e test');
-
-    // Submit
-    await dialog.getByRole('button', { name: /Create Task/i }).click();
-
-    // Dialog should close
-    await dialog.waitFor({ state: 'hidden', timeout: 10_000 });
-  });
-
   // ── 7. Update task status via detail panel ──────────────────────────
 
   test('should open task detail panel and show status change buttons', async ({ page }) => {

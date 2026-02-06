@@ -1,8 +1,7 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Loader2, Filter } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { KanbanColumn, TaskDetailPanel, CreateTaskDialog } from '@/components/tasks'
+import { Loader2, Filter } from 'lucide-react'
+import { KanbanColumn, TaskDetailPanel } from '@/components/tasks'
 import { useTaskStore } from '@/stores/taskStore'
 import { useTeamStore } from '@/stores/teamStore'
 import { api } from '@/lib/api'
@@ -10,7 +9,6 @@ import type { Task, TaskStatus } from '@/types'
 
 export function TasksPage() {
   const queryClient = useQueryClient()
-  const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const selectedTaskId = useTaskStore((s) => s.selectedTaskId)
   const selectTask = useTaskStore((s) => s.selectTask)
   const filterTeamId = useTaskStore((s) => s.filterTeamId)
@@ -39,14 +37,6 @@ export function TasksPage() {
     },
   })
 
-  const createMutation = useMutation({
-    mutationFn: (data: { subject: string; description: string }) =>
-      api.createTask({ ...data, teamId: filterTeamId }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] })
-    },
-  })
-
   const handleSelectTask = useCallback((task: Task) => {
     selectTask(task.id)
   }, [selectTask])
@@ -55,10 +45,6 @@ export function TasksPage() {
     const task = tasks.find((t) => t.id === taskId)
     updateMutation.mutate({ id: taskId, status, teamId: task?.teamId })
   }, [updateMutation, tasks])
-
-  const handleCreate = useCallback((subject: string, description: string) => {
-    createMutation.mutate({ subject, description })
-  }, [createMutation])
 
   const columns = useMemo(() => ({
     pending: tasks.filter((t) => t.status === 'pending'),
@@ -92,10 +78,6 @@ export function TasksPage() {
                 ))}
               </select>
             </div>
-            <Button onClick={() => setCreateDialogOpen(true)}>
-              <Plus className="mr-1 h-4 w-4" />
-              Create Task
-            </Button>
           </div>
         </div>
 
@@ -140,11 +122,6 @@ export function TasksPage() {
         />
       )}
 
-      <CreateTaskDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-        onCreate={handleCreate}
-      />
     </div>
   )
 }

@@ -1,9 +1,9 @@
-import { Users, ListTodo, MoreVertical, Eye, UserPlus, Trash2 } from 'lucide-react'
+import { Users, ListTodo, MoreVertical, Eye, UserPlus, Trash2, Clock } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
 import type { Team } from '@/types'
-import { cn } from '@/lib/utils'
+import { cn, timeAgo, STALE_THRESHOLD_MS } from '@/lib/utils'
 
 interface TeamCardProps {
   team: Team;
@@ -22,6 +22,9 @@ const statusConfig = {
 export function TeamCard({ team, onSelect, onSpawnAgent, onCleanup }: TeamCardProps) {
   const status = statusConfig[team.status]
   const activeMembers = team.members.filter((m) => m.status === 'active').length
+  const isStale = team.lastActivityAt
+    ? Date.now() - new Date(team.lastActivityAt).getTime() > STALE_THRESHOLD_MS
+    : false
 
   return (
     <Card
@@ -33,9 +36,16 @@ export function TeamCard({ team, onSelect, onSpawnAgent, onCleanup }: TeamCardPr
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
         <div className="space-y-1">
           <CardTitle className="text-base">{team.name}</CardTitle>
-          <Badge variant={status.variant} className="text-[10px]">
-            {status.label}
-          </Badge>
+          <div className="flex items-center gap-1.5">
+            <Badge variant={status.variant} className="text-[10px]">
+              {status.label}
+            </Badge>
+            {isStale && (
+              <Badge variant="warning" className="text-[10px]">
+                Stale
+              </Badge>
+            )}
+          </div>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger
@@ -82,6 +92,12 @@ export function TeamCard({ team, onSelect, onSpawnAgent, onCleanup }: TeamCardPr
             <ListTodo className="h-3.5 w-3.5" />
             <span>tasks</span>
           </div>
+          {team.lastActivityAt && (
+            <div className="flex items-center gap-1">
+              <Clock className="h-3.5 w-3.5" />
+              <span>{timeAgo(team.lastActivityAt)}</span>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

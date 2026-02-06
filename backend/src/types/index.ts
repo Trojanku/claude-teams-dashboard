@@ -29,6 +29,7 @@ export interface Team {
   activeTasks: number;
   status: "active" | "idle" | "error" | "inactive";
   createdAt?: string;
+  lastActivityAt: string;
 }
 
 // --- Task Types ---

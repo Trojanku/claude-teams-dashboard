@@ -6,6 +6,7 @@ export interface Team {
   members: TeamMember[];
   createdAt: string;
   status: 'active' | 'idle' | 'error' | 'inactive';
+  lastActivityAt?: string;
 }
 
 export interface TeamMember {

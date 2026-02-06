@@ -16,6 +16,7 @@ export function generateMockTeams(): Team[] {
       activeTasks: 3,
       status: "active",
       createdAt: new Date(Date.now() - 3600000).toISOString(),
+      lastActivityAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(), // 2 min ago
     },
     {
       id: "refactor-api",
@@ -30,6 +31,7 @@ export function generateMockTeams(): Team[] {
       activeTasks: 2,
       status: "active",
       createdAt: new Date(Date.now() - 7200000).toISOString(),
+      lastActivityAt: new Date(Date.now() - 3 * 60 * 1000).toISOString(), // 3 min ago
     },
     {
       id: "docs-update",
@@ -43,6 +45,7 @@ export function generateMockTeams(): Team[] {
       activeTasks: 0,
       status: "idle",
       createdAt: new Date(Date.now() - 86400000).toISOString(),
+      lastActivityAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago — stale
     },
   ];
 }

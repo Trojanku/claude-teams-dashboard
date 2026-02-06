@@ -5,8 +5,45 @@ import { TeamConfigSchema } from "../types/index.js";
 import type { Team, TeamConfig } from "../types/index.js";
 import { generateMockTeams } from "./mockData.js";
 import { NotFoundError } from "../utils/errors.js";
-import { isTmuxPaneAlive } from "../utils/tmux.js";
 
+async function getLastActivityAt(teamId: string): Promise<string> {
+  const mtimes: number[] = [];
+
+  // config.json mtime
+  const configPath = path.join(config.teamsDir, teamId, "config.json");
+  try {
+    const stat = await fs.stat(configPath);
+    mtimes.push(stat.mtimeMs);
+  } catch { /* ignore */ }
+
+  // inbox files
+  const inboxDir = path.join(config.teamsDir, teamId, "inboxes");
+  try {
+    const entries = await fs.readdir(inboxDir, { withFileTypes: true });
+    for (const entry of entries) {
+      try {
+        const stat = await fs.stat(path.join(inboxDir, entry.name));
+        mtimes.push(stat.mtimeMs);
+      } catch { /* ignore */ }
+    }
+  } catch { /* ignore */ }
+
+  // task files
+  const tasksDir = path.join(config.tasksDir, teamId);
+  try {
+    const entries = await fs.readdir(tasksDir);
+    for (const f of entries) {
+      if (!f.endsWith(".json")) continue;
+      try {
+        const stat = await fs.stat(path.join(tasksDir, f));
+        mtimes.push(stat.mtimeMs);
+      } catch { /* ignore */ }
+    }
+  } catch { /* ignore */ }
+
+  if (mtimes.length === 0) return new Date().toISOString();
+  return new Date(Math.max(...mtimes)).toISOString();
+}
 export class TeamService {
   private get teamsDir(): string {
     return config.teamsDir;
@@ -88,35 +125,6 @@ export class TeamService {
       // tasks dir may not exist
     }
 
-    // Check liveness for each member via tmux pane
-    // Members with a tmuxPaneId field are from Claude Code teams.
-    // If paneId is empty (team-lead) or the pane is dead → inactive.
-    let hasAnyAlive = false;
-    for (const member of cfg.members) {
-      const raw = member as Record<string, unknown>;
-      if ("tmuxPaneId" in raw) {
-        const paneId = raw.tmuxPaneId;
-        if (typeof paneId === "string" && paneId) {
-          const alive = await isTmuxPaneAlive(paneId);
-          if (alive) {
-            hasAnyAlive = true;
-            continue;
-          }
-        }
-        // Empty paneId (team-lead) or dead pane → inactive
-        member.status = "inactive";
-        member.currentTask = undefined;
-      }
-    }
-
-    // If no members are alive, mark any remaining members inactive too
-    if (!hasAnyAlive) {
-      for (const member of cfg.members) {
-        member.status = "inactive";
-        member.currentTask = undefined;
-      }
-    }
-
     const allInactive =
       cfg.members.length > 0 &&
       cfg.members.every((m) => m.status === "inactive");
@@ -125,6 +133,8 @@ export class TeamService {
       : activeTasks > 0
         ? "active"
         : "idle";
+
+    const lastActivityAt = await getLastActivityAt(id);
 
     return {
       id,
@@ -137,6 +147,7 @@ export class TeamService {
       createdAt: typeof cfg.createdAt === "number"
         ? new Date(cfg.createdAt).toISOString()
         : cfg.createdAt,
+      lastActivityAt,
     };
   }
 }
