@@ -2,6 +2,8 @@
 
 A web dashboard for monitoring and managing [Claude Code](https://docs.anthropic.com/en/docs/claude-code) agent teams in real time.
 
+<img width="1080" height="1080" alt="screenshot-1080x1080" src="https://github.com/user-attachments/assets/a85fb8a7-48b4-4b6b-becf-b379c2b808a2" />
+
 Claude Code's multi-agent team system coordinates AI agents working together on complex tasks. This dashboard provides visibility into those teams — their agents, tasks, messages, and liveness status — through a browser-based interface that reads directly from Claude Code's file system (`~/.claude/teams/` and `~/.claude/tasks/`).
 
 ## Features
